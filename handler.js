@@ -51,11 +51,33 @@ app.delete("/tasks/:taskId", function(request, response) {
     }
   });
 });
+
 app.post("/tasks", function(request, response) {
   const task = request.body;
- // Create a new task
+  // Create a new task
+  task.Completed = false;
+  const q = "INSERT INTO Task SET ?";
+  connection.query(q, task, function(err, data) {
+    if (err) {
+      console.log("Error fetching tasks", err);
+      response.status(500).json({
+        error: err
+      });
+    } else {
+      task.taskId = data.insertId;
+      response.status(201).send(task);
+    }
+  });
+});
+
+app.put("/tasks/:taskId", function(request, response) {
+  // Updating an existing task
+  const task = request.body;
+  const id = request.params.taskId;
+  const q =
+    "UPDATE Task SET Completed = ?, DateCreated = ?, DateDue = ?, Text = ?, UserID] WHERE ?";
   connection.query(
-    "INSERT INTO Task (Completed, DateCreated, DateDue, Text, UserID), VALUES ?",
+    q,
     [task.Completed, task.DateCreated, task.DateDue, task.Text, task.UserID],
     function(err, data) {
       if (err) {
@@ -63,20 +85,14 @@ app.post("/tasks", function(request, response) {
         response.status(500).json({
           error: err
         });
+        task.Text;
       } else {
-      response
-        .status(201)
-        .send("Created a new task with text " + " " + task.Text);
+        response
+          .status(205)
+          .send("Updated a task with ID " + id + " " + task.text);
+      }
     }
-    });
-});
-
-app.put("/tasks/:taskId", function(request, response) {
-  // Updating an existing task
-  connection.query("INSERT INTO Task (Text), VALUES ?", [taskId], function(err, data) {
-  const task = request.body;
-  const id = request.params.taskId;
-  response.status(200).send("Updated a task with ID " + id + " " + task.text);
+  );
 });
 
 module.exports.tasks = serverless(app);
