@@ -33,14 +33,11 @@ app.get("/tasks", function(request, response) {
   });
 });
 
-app.delete("/tasks/:taskId", function(request, response) {
-  const id = request.params.taskId;
+app.delete("/tasks/:TaskID", function(request, response) {
+  const id = request.params.TaskID;
 
   // Delete the task
-  connection.query("DELETE FROM Task WHERE taskId = ?", [id], function(
-    err,
-    data
-  ) {
+  connection.query("DELETE FROM Task WHERE TaskID = ?", [id], err => {
     if (err) {
       console.log("Error fetching tasks", err);
       response.status(500).json({
@@ -70,29 +67,24 @@ app.post("/tasks", function(request, response) {
   });
 });
 
-app.put("/tasks/:taskId", function(request, response) {
+app.put("/tasks/:TaskID", function(request, response) {
   // Updating an existing task
   const task = request.body;
-  const id = request.params.taskId;
-  const q =
-    "UPDATE Task SET Completed = ?, DateCreated = ?, DateDue = ?, Text = ?, UserID] WHERE ?";
-  connection.query(
-    q,
-    [task.Completed, task.DateCreated, task.DateDue, task.Text, task.UserID],
-    function(err, data) {
-      if (err) {
-        console.log("Error fetching tasks", err);
-        response.status(500).json({
-          error: err
-        });
-        task.Text;
-      } else {
-        response
-          .status(205)
-          .send("Updated a task with ID " + id + " " + task.text);
-      }
+  const id = request.params.TaskID;
+  const q = "UPDATE Task SET Completed = ? WHERE ? id = ?";
+  connection.query(q, [task.Completed], id, function(err, data) {
+    if (err) {
+      console.log("Error fetching tasks", err);
+      response.status(500).json({
+        error: err
+      });
+      task.Text;
+    } else {
+      response
+        .status(205)
+        .send("Updated a task with ID " + id + " " + task.text);
     }
-  );
+  });
 });
 
 module.exports.tasks = serverless(app);
